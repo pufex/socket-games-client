@@ -67,3 +67,20 @@ export type ErrorPayload = {
     status: number,
     message: string
 }
+
+export type AskToSendMessagePayload = {
+    message: string,
+    name: string,
+    game: string
+}
+
+export type GiveMessagePayload = {
+    message: MessageType
+}
+
+export type MessageType = {
+    isAdmin: boolean,
+    name: string,
+    message: string,
+    timestamp: Date
+}

@@ -5,7 +5,9 @@ import { Navigate } from "react-router-dom"
 import MakePrivate from "./auth/MakePrivate"
 import MoveOutside from "./auth/MoveOutside"
 
-import PublicOutlet from "./components/PublicOutlet"
+import PublicLayout from "./components/PublicLayout"
+import OutsideLayout from "./components/OutsideLayout"
+import IngameLayout from "./components/IngameLayout"
 
 import Login from "./auth/Login"
 import Register from "./auth/Register"
@@ -21,13 +23,19 @@ const App = () => {
     </Route>
 
     <Route element={<MakePrivate />}>
-      <Route path="/" element={<PublicOutlet/>}>
+      <Route path="/" element={<PublicLayout/>}>
+      
         <Route index element={<Navigate to="/games" replace />} />
-        <Route path="games">
-          <Route index element={<Games />} />
-          <Route path="new-game" element={<NewGame />}/>
-          <Route path=":id" element={<Game />}/>
+
+        <Route element={<OutsideLayout/>}>
+          <Route path="games" element={<Games />} />
+          <Route path="games/new-game" element={<NewGame />}/>
         </Route>
+
+        <Route element={<IngameLayout/>}>
+          <Route path="games/:id" element={<Game />}/>
+        </Route>
+
       </Route>
     </Route>
   </Routes>

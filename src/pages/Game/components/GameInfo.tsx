@@ -27,9 +27,6 @@ const GameInfo = () => {
         }
     }, [])
 
-    useEffect(() => {
-        console.log(users)
-    }, [users])
 
     if(game)
     return <div className="game-info__container">

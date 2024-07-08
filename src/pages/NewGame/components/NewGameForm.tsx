@@ -1,6 +1,6 @@
 import type { FieldValues } from "react-hook-form";
 
-import { useNavigate } from "react-router-dom";
+import { useGameHandlers } from "../../../hooks/useGameHandlers";
 import {useForm} from "react-hook-form"
 import { useState } from "react";
 
@@ -12,8 +12,8 @@ import api from "../../../api/api";
 import { isAxiosError } from "axios";
 
 const NewGameForm = () => {
-
-    const navigate = useNavigate()
+    
+    const {JoinGame} = useGameHandlers()
     const [error, setError] = useState("")
     const [loading, setLoading] = useState(false)
 
@@ -26,7 +26,7 @@ const NewGameForm = () => {
         setError("")
         try{
             await api.post("/games",{name})
-            navigate(`/games/${name}`)
+            JoinGame(name)
         }catch(err){
             if(isAxiosError(err)){
                 if(err.response?.status === 409)

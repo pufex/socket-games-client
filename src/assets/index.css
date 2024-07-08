@@ -424,11 +424,11 @@ body{
     font-weight: 700;
 }
 
-.conclusion__player.X{
+.conclusion__player.O{
     color: var(--red);
 }
 
-.conclusion__player.O{
+.conclusion__player.X{
     color: var(--blue);
 }
 
@@ -460,6 +460,7 @@ body{
     font-size: 1.1rem;
     font-weight: 600;
     color: var(--black);
+    text-align: center;
 }
 
 .activate-game__button{
@@ -549,4 +550,99 @@ body{
 
 .new-game__heading{
     margin-bottom: 1rem;
+}
+
+.chat-message__wrapper{
+    width: 100%;
+    padding: 1rem;
+}
+
+.chat-message{
+    display: flex;
+    flex-direction: column;
+    width: 90%;
+    max-width: 300px;
+    border-radius: 10px;
+    overflow-x: hidden;
+    background-color: var(--gray);
+}
+
+.chat-message.admin{
+    margin-inline: auto;
+}
+
+.chat-message.yours{
+    margin-left: auto;
+}
+
+.chat-message.alien{
+    margin-right: auto;
+}
+
+.chat-message__author{
+    width: 100%;
+    display: flex;
+    align-items: center;
+    padding: 0.25rem 0.5rem;
+    font-weight: 600;
+    color: var(--white);
+    font-size: 1rem;
+}
+
+.chat-message.yours
+.chat-message__author{
+    background-color: var(--blue);
+    justify-content: end;
+}
+
+.chat-message.alien
+.chat-message__author{
+    background-color: var(--red);
+    justify-content: start;
+}
+
+.chat-message__content{
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--black);
+}
+
+.chat-message.admin
+.chat-message__content{
+    text-align: center;
+}
+
+.chat-message.yours
+.chat-message__content{
+    text-align: right;
+}
+
+.chat-message.alien
+.chat-message__content{
+    text-align: left;
+}
+
+.game-chat{
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    margin-top: 1rem;
+}
+
+.game-chat__box{
+    border: 2px solid var(--gray);
+    height: 300px;
+    overflow-y: auto;
+    border-radius: 5px;
+}
+
+.chat-form{
+    display: grid;
+    grid-template-columns: 1fr 80px;
+    gap: 0.25rem;
+}
+
+.chat-form__loading{
+    animation: loadingSpin 1500ms linear 0ms infinite;
 }

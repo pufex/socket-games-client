@@ -53,7 +53,7 @@ const JoinSlot = ({
         }
         </div>
         {
-            game[player] === null && game[player === "O" ? "X" : "O"] !== auth.user.name
+            game[player] === null && game[player === "O" ? "X" : "O"] !== auth.user.name && !game.isFinished && !game.isActive
                 ?  <Button
                     role="button"
                     onClick={handleXJoin}
@@ -61,32 +61,18 @@ const JoinSlot = ({
                 >
                     Join
                 </Button>
-            :   game[player === "O" ? "X" : "O"] !== null && game[player] !== auth.user.name
-                    ?<Button
+                : game[player] === auth.user.name
+                    ? <ExitSlotButton 
+                        player={player}
+                    />
+                    : <Button
                         role="button"
                         isDisabled={true}
                         className="join-x__button"
                     >
                         Unavail.
                     </Button>
-                    : null
         }
-        {
-            game[player] === auth.user.name
-            && <ExitSlotButton
-                player={player}
-            />
-        }        
-        {
-            game[player] !== auth.user.name && game[player] !== null && game[player === "O" ? "X" : "O"] !== auth.user.name
-            && <Button
-                role="button"
-                isDisabled={true}
-                className="join-x__button"
-            >
-                Taken
-            </Button>
-        }         
     </div>
 
     else null

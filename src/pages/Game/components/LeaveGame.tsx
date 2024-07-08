@@ -1,14 +1,22 @@
-import { useNavigate } from "react-router-dom"
+import { useGameHandlers } from "../../../hooks/useGameHandlers"
+import { useGame } from "../../../store/store"
 
 import Button from "../../../ui/Button"
 
 const LeaveGame = () => {
 
-    const navigate = useNavigate()
+    const {LeaveGame} = useGameHandlers()
+    const {game} = useGame()
+
+    const handleLeavingGame = () => {
+        if(!game)
+            return 
+        LeaveGame(game.name)
+    }
 
     return <Button
-        onClick={() => navigate("/games")}
         className="leave-game__btn"
+        onClick={handleLeavingGame}
     >
         Leave
     </Button>

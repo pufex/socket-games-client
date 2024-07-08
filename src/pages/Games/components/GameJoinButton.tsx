@@ -1,6 +1,6 @@
-import Button from "../../../ui/Button"
+import { useGameHandlers } from "../../../hooks/useGameHandlers"
 
-import { useNavigate } from "react-router-dom"
+import Button from "../../../ui/Button"
 
 type GameJoinButtonProps = {
     name: string,
@@ -10,12 +10,12 @@ const GameJoinButton = ({
     name
 }: GameJoinButtonProps) => {
 
-    const navigate = useNavigate();
-    
+    const {JoinGame} = useGameHandlers()
+
     return <Button
         type="primary"
         role="button"
-        onClick={() => navigate(`/games/${name}`)} 
+        onClick={() => JoinGame(name)} 
     >
         Join
     </Button>

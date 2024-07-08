@@ -1,8 +1,9 @@
 import type { Socket } from "socket.io-client"
+import type { GameEnteredPayload, GameStateChanged, EnterGamePayload } from "../types"
 
-import { useLocation } from "react-router-dom"
+import { useLocation, useNavigate } from "react-router-dom"
 import { useAuth } from "../auth/Auth"
-import { useState, createContext, useContext, useLayoutEffect, useEffect } from "react"
+import { useState, createContext, useContext, useLayoutEffect } from "react"
 import { useGame } from "../store/store"
 
 import LoadingBlock from "../components/LoadingBlock"
@@ -30,45 +31,142 @@ const SocketProvider = ({
   children
 }: SocketProviderProps) => {
 
+  const navigate = useNavigate()
+
   const {pathname} = useLocation();
   const {auth, setAuth} = useAuth()
-  const {setGame} = useGame()
+  const {game, setGame, setLoadingGame} = useGame()
   const [socket, setSocket] = useState<Socket<any,any> | undefined | null>(undefined)
 
   useLayoutEffect(() => {
-    const s = io("http://localhost:9000", {
-      extraHeaders: auth?.accessToken
-        ? {
-          authorization: `bearer ${auth.accessToken}` 
-        }
-        : undefined
-    })
+    const s = io("http://localhost:9000")
     setSocket(s)
-    console.log("Connected to the socket!")
     return () => {
       s.disconnect()
     }
   }, [])
+  
+  useLayoutEffect(() => {
+    if(!socket || !auth)
+      return navigate("/")
+    
+    const {user: {game_name}} = auth
 
-  useEffect(() => {
-    if(!socket)
-      return 
+    const handleGameChange = ({game: updatedGame}: GameStateChanged) => {
+      setGame(updatedGame)
+    }
 
-    const handleLeftGame = () => {
+    const handleEnterError = () => {
+      console.log("enterError event triggered...")
+
+      setGame(undefined)
+      setAuth(prev => !prev
+          ? prev
+          : {
+              ...prev, 
+              user: {
+                  ...prev.user, 
+                  game_name: null
+              }
+          }
+      )
+      navigate("/games")
+      setLoadingGame(false)
+    } 
+    
+    const handleEnterSuccess = ({game: newGame}: GameEnteredPayload) => {            
+      console.log("enterSuccess event triggered...")
+      
+      setGame(newGame)
+      setAuth(prev => !prev
+          ? prev
+          : {
+              ...prev,
+              user: {
+                  ...prev.user,
+                  game_name: newGame.name
+              }
+          }
+      )
+      socket.on("gameStateChange", handleGameChange)
+      navigate(`/games/${newGame.name}`)
+      setLoadingGame(false)
+    }
+      
+    socket.on("enterGameSuccess", handleEnterSuccess)
+    socket.on("enterGameError", handleEnterError)
+    
+    const handleLeaveError = () => {
+      console.log("leaveError event triggered...")
+      if(game_name){
+        setLoadingGame(true)
+        const entryObject: EnterGamePayload = {
+          game: game_name,
+          user_id: auth.user.id
+        }
+        socket.emit("enterGame", entryObject)
+      }else navigate("/games")
+      setLoadingGame(false)
+    }
+
+    const handleLeaveSuccess = () => {
+      console.log("leaveSuccess event triggered...")
       setGame(undefined)
       setAuth(prev => !prev
         ? prev
         : {
-          ...prev
+          ...prev,
+          user: {
+            ...prev.user,
+            game_name: null
+          }
         }
       )
+      socket.off("gameStateChange", handleGameChange)
+      navigate("/games")
+      setLoadingGame(false)
     }
 
-    socket.on("leftGame", handleLeftGame)
+    socket.on("gameLeftSuccess", handleLeaveSuccess)
+    socket.on("gameLeftError", handleLeaveError)
+    
     return () => {
-      socket.off("leftGame", handleLeftGame)
+      setGame(undefined)
+      setAuth(
+          prev => !prev 
+              ? prev
+              : {
+                  ...prev,
+                  user: {
+                      ...prev.user,
+                      game_name: null
+                  }
+              }
+      )
+      socket.off("enterGameError", handleEnterError)
+      socket.off("enterGameSuccess", handleEnterSuccess)
+      socket.off("gameLeftSuccess", handleLeaveSuccess)
+      socket.off("gameLeftError", handleLeaveError)    
     }
   }, [socket])
+
+  useLayoutEffect(() => {
+    
+    if(!socket || !auth)
+      return
+
+    const {user: {game_name}} = auth
+
+    if(game_name && !game){
+      setLoadingGame(true)
+      const entryObject: EnterGamePayload = {
+        game: game_name,
+        user_id: auth.user.id
+      }
+      socket.emit("enterGame", entryObject)
+    }
+  }, [socket, pathname])
+
 
   return <SocketContext.Provider value={{socket, setSocket}}>
     {
