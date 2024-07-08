@@ -21,7 +21,7 @@ const JoinSlot = ({
     const {auth} = useAuth();
 
     const handleXJoin = () => {
-        if(!auth || !socket || !game)
+        if(!socket || !game)
             return 
 
         if(game[player]) return
@@ -29,7 +29,6 @@ const JoinSlot = ({
         const askForSlotObj: AskForSlotPayload = {
             game: game.name,
             player: player,
-            user_name: auth.user.name
         }
 
         socket.emit("askForSlot", askForSlotObj)

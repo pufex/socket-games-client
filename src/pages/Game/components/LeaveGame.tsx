@@ -1,11 +1,11 @@
-import { useGameHandlers } from "../../../hooks/useGameHandlers"
+import { useSocket } from "../../../contexts/Socket"
 import { useGame } from "../../../store/store"
 
 import Button from "../../../ui/Button"
 
 const LeaveGame = () => {
 
-    const {LeaveGame} = useGameHandlers()
+    const {LeaveGame} = useSocket()
     const {game} = useGame()
 
     const handleLeavingGame = () => {

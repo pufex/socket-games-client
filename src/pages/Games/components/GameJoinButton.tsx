@@ -1,4 +1,4 @@
-import { useGameHandlers } from "../../../hooks/useGameHandlers"
+import { useSocket } from "../../../contexts/Socket"
 
 import Button from "../../../ui/Button"
 
@@ -10,7 +10,7 @@ const GameJoinButton = ({
     name
 }: GameJoinButtonProps) => {
 
-    const {JoinGame} = useGameHandlers()
+    const {JoinGame} = useSocket()
 
     return <Button
         type="primary"

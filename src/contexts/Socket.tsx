@@ -1,9 +1,14 @@
 import type { Socket } from "socket.io-client"
-import type { GameEnteredPayload, GameStateChanged, EnterGamePayload } from "../types"
+import type { 
+  GameEnteredPayload, 
+  GameStateChanged, 
+  EnterGamePayload,
+  LeaveGamePayload
+} from "../types"
 
 import { useLocation, useNavigate } from "react-router-dom"
 import { useAuth } from "../auth/Auth"
-import { useState, createContext, useContext, useLayoutEffect } from "react"
+import { useState, createContext, useContext, useLayoutEffect, useCallback } from "react"
 import { useGame } from "../store/store"
 
 import LoadingBlock from "../components/LoadingBlock"
@@ -12,7 +17,9 @@ import {io} from "socket.io-client"
 
 export type SocketContextType = {
   socket: Socket<any,any> | null | undefined,
-  setSocket: React.Dispatch<React.SetStateAction<Socket<any, any> | null | undefined>> 
+  setSocket: React.Dispatch<React.SetStateAction<Socket<any, any> | null | undefined>>,
+  JoinGame: (game_name: string) => void,
+  LeaveGame: (game_name: string) => void,
 }
 
 const SocketContext = createContext<SocketContextType | undefined>(undefined)
@@ -38,8 +45,30 @@ const SocketProvider = ({
   const {game, setGame, setLoadingGame} = useGame()
   const [socket, setSocket] = useState<Socket<any,any> | undefined | null>(undefined)
 
+  const JoinGame = useCallback((game: string) => {
+    if(!socket)
+        return
+    setLoadingGame(true)
+    const payload: EnterGamePayload = {game}
+    socket.emit("enterGame", payload)
+  }, [socket])
+
+  const LeaveGame = useCallback((game: string) => {
+      if(!socket)
+          return
+      setLoadingGame(true)
+      const payload: LeaveGamePayload = {game}
+      socket.emit("askToLeaveGame", payload)
+  }, [socket])
+
   useLayoutEffect(() => {
-    const s = io("http://localhost:9000")
+    if(!auth)
+      return
+    const s = io("http://localhost:9000", {
+      auth: {
+        token: auth.accessToken
+      }
+    })
     setSocket(s)
     return () => {
       s.disconnect()
@@ -57,8 +86,6 @@ const SocketProvider = ({
     }
 
     const handleEnterError = () => {
-      console.log("enterError event triggered...")
-
       setGame(undefined)
       setAuth(prev => !prev
           ? prev
@@ -74,9 +101,7 @@ const SocketProvider = ({
       setLoadingGame(false)
     } 
     
-    const handleEnterSuccess = ({game: newGame}: GameEnteredPayload) => {            
-      console.log("enterSuccess event triggered...")
-      
+    const handleEnterSuccess = ({game: newGame}: GameEnteredPayload) => {                  
       setGame(newGame)
       setAuth(prev => !prev
           ? prev
@@ -97,14 +122,8 @@ const SocketProvider = ({
     socket.on("enterGameError", handleEnterError)
     
     const handleLeaveError = () => {
-      console.log("leaveError event triggered...")
       if(game_name){
-        setLoadingGame(true)
-        const entryObject: EnterGamePayload = {
-          game: game_name,
-          user_id: auth.user.id
-        }
-        socket.emit("enterGame", entryObject)
+        JoinGame(game_name)
       }else navigate("/games")
       setLoadingGame(false)
     }
@@ -158,17 +177,11 @@ const SocketProvider = ({
     const {user: {game_name}} = auth
 
     if(game_name && !game){
-      setLoadingGame(true)
-      const entryObject: EnterGamePayload = {
-        game: game_name,
-        user_id: auth.user.id
-      }
-      socket.emit("enterGame", entryObject)
+      JoinGame(game_name)
     }
   }, [socket, pathname])
 
-
-  return <SocketContext.Provider value={{socket, setSocket}}>
+  return <SocketContext.Provider value={{socket, setSocket, JoinGame, LeaveGame}}>
     {
       socket === undefined
         ? <LoadingBlock height="400px" />

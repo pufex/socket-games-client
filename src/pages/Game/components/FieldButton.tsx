@@ -30,18 +30,14 @@ const FieldButton = ({
             : true
 
     const handleUserChoice = () => {
-        if(!socket || !game || !auth)
+        if(!socket || !game)
             return 
         if(isEnemyTurn)
             return
 
 
-        const usurpationPayload: UsurpationPayload = {
-            game: game.name,
-            row, 
-            col,
-            user_name: auth.user.name
-        }
+        const usurpationPayload: UsurpationPayload = 
+            {game: game.name, row, col,}
         socket.emit("askToTakePosition", usurpationPayload)
     }
 

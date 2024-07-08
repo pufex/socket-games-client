@@ -1,6 +1,6 @@
 import type { FieldValues } from "react-hook-form";
 
-import { useGameHandlers } from "../../../hooks/useGameHandlers";
+import { useSocket } from "../../../contexts/Socket";
 import {useForm} from "react-hook-form"
 import { useState } from "react";
 
@@ -13,7 +13,7 @@ import { isAxiosError } from "axios";
 
 const NewGameForm = () => {
     
-    const {JoinGame} = useGameHandlers()
+    const {JoinGame} = useSocket()
     const [error, setError] = useState("")
     const [loading, setLoading] = useState(false)
 

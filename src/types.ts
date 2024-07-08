@@ -26,7 +26,6 @@ export type GameType = {
 
 export type EnterGamePayload = {
     game: string,
-    user_id: string,
 }
 
 export type LeaveGamePayload = EnterGamePayload
@@ -44,7 +43,6 @@ export type GiveTheListPayload = {
 export type AskForSlotPayload = {
     game: string,
     player: "X" | "O",
-    user_name: string,
 }
 
 export type AskToStartPayload = {
@@ -60,7 +58,6 @@ export type UsurpationPayload = {
     game: string,
     row: number,
     col: number,
-    user_name: string
 }
 
 export type ErrorPayload = {
